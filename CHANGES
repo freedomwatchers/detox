@@ -1,0 +1,8 @@
+Version 0.9.1:
+	Added -d flag to install 
+	Broke installation out into a script to handle differences between
+		Solaris and BSD/Linux.
+	Added function check for getopt_long.
+
+Version 0.9.0:
+	Initial release

@@ -18,7 +18,8 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 # Checks for library functions.
 AC_FUNC_LSTAT
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([memset strrchr strstr strtol])
+AC_CHECK_FUNCS([memset strrchr strstr strtol getopt_long])
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_OUTPUT

@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: detox.c,v 1.6 2004/02/16 03:17:15 purgedhalo Exp $
+ * $Id: detox.c,v 1.7 2004/07/15 03:14:32 purgedhalo Exp $
  * 
  */
 
@@ -36,12 +36,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "detox.h"
 #include "file.h"
 #include "config.h"
+
+#ifdef HAVE_GETOPT_LONG
+#include <getopt.h>
+#endif
 
 enum {
 	LONG_OPTION_DRY_RUN = 1,
@@ -52,6 +56,7 @@ enum {
 /* expect this to be overwritten! */
 int long_option = 0;
 
+#ifdef HAVE_GETOPT_LONG
 static struct option longopts[] = {
 	/* long options with equivalents */
 	{"help", no_argument, 0, 'h'},
@@ -64,17 +69,29 @@ static struct option longopts[] = {
 	/* done */
 	{0, 0, 0, 0}
 };
+#endif
 
-char usage_message[] = "usage: detox [-hrv] [--dry-run] [--remove-trailing] [--special] [file ...]\n";
+char usage_message[] = 
+	"usage: detox [-hrv]"
+#ifdef HAVE_GETOPT_LONG
+	" [--dry-run] [--remove-trailing] [--special]"
+#endif
+	" [file ...]\n";
 
 char help_message[] = {
+#ifdef HAVE_GETOPT_LONG
 	"	-h --help	this message\n"
+#else
+	"	-h 		this message\n"
+#endif
 	"	-r 		be recursive (descend into subdirectories)\n"
 	"	-v 		be verbose\n"
+#ifdef HAVE_GETOPT_LONG
 	"	--dry-run	do a dry run (don't actually do anything)\n"
 	"	--remove-trailing\n"
 	"			remove trailing _ and - before a period\n"
 	"	--special	work on links and special files\n"
+#endif
 };
 
 struct detox_options main_options;
@@ -86,7 +103,11 @@ int main(int argc, char **argv)
 
 	memset(&main_options, 0, sizeof(struct detox_options));
 
+#ifdef HAVE_GETOPT_LONG
 	while ((optcode = getopt_long(argc, argv, "hrvV?", longopts, NULL)) != -1) {
+#else
+	while ((optcode = getopt(argc, argv, "hrvV?")) != -1) {
+#endif
 		switch (optcode) {
 			case 'v':
 				main_options.verbose++;

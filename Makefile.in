@@ -28,7 +28,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# $Id: Makefile.in,v 1.3 2004/02/15 04:58:46 purgedhalo Exp $
+# $Id: Makefile.in,v 1.5 2004/07/15 04:41:18 purgedhalo Exp $
 #
 
 C_OPT = -O2 -Wall -g
@@ -56,8 +56,7 @@ regress: ${regressOBJS}
 	${CC} ${L_OPT} -o regress ${regressOBJS}
 
 install:
-	install -s detox ${bindir}
-	install detox.1 ${mandir}/man1
+	./install.sh
 
 clean:
 	rm -f *.o core *~ a.out *.core
@@ -69,6 +68,6 @@ devclean: clean
 
 distclean: clean
 	rm -f config.log config.status
-	rm -f Makefile config.h
+	rm -f Makefile config.h install.sh
 
 dummy: 

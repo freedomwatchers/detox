@@ -1,0 +1,25 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+mandir=@mandir@
+
+case `uname -s` in
+SunOS)
+	install -d ${bindir}
+	install -d ${mandir}/man1
+	install -f ${bindir} detox
+	install -f ${mandir}/man1 detox.1 
+	;;
+*)
+# Linux
+# FreeBSD
+# Darwin
+# NetBSD (requires -c)
+	install -d ${bindir}
+	install -d ${mandir}/man1
+	install -c -s detox ${bindir}
+	install -c detox.1 ${mandir}/man1
+	;;
+esac

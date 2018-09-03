@@ -33,12 +33,17 @@ Notes:
 	into any problems with installation or operation please feel free
 	to contact me.
 
+Bugs:
+	Extended options don't work under Solaris or Darwin.
 
 Thanks:
 	Eric S. Raymond for his work on "The Art of UNIX Programming"
 
 	http://www.bbsinc.com/iso8859.html for their help in building a
 	complete list of Latin-1 translations.
+
+	SourceForge.net for their generous hosting of this and many other
+	projects.
 
 Contact:
 	Doug Harple <purgedhalo at users.sourceforge.net>
