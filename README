@@ -1,0 +1,45 @@
+detox is a program that renames files to make them easier to work with
+under Unix and related operating systems.  Spaces and various other unsafe
+characters (such as "$") get replaced with "_".  ISO8859.1 (Latin-1)
+characters will be replaced as well, as intelligently as possible (for
+instance, "A" with an umlaut gets replaced with "A").
+
+This is a BETA release.  Please watch for falling bits.
+
+Compilation:
+	./configure
+	make
+
+Installation:
+	make install
+
+-----------------------------------------------------------------------------
+
+The simplest way to run detox is to just run it on a directory containing
+files that need work:
+	detox xfer_files/
+
+You can also just to specify the filename:
+	detox my\ bad\ file.txt
+
+You can also specify recursion (this works best on directories):
+	detox -r /music/transfered_from_elsewhere/
+
+-----------------------------------------------------------------------------
+
+Notes:
+	This project was initially developed under Linux (RedHat 7.x, 8.x),
+	and is presently being maintained under FreeBSD 5.1.  If you run
+	into any problems with installation or operation please feel free
+	to contact me.
+
+
+Thanks:
+	Eric S. Raymond for his work on "The Art of UNIX Programming"
+
+	http://www.bbsinc.com/iso8859.html for their help in building a
+	complete list of Latin-1 translations.
+
+Contact:
+	Doug Harple <purgedhalo at users.sourceforge.net>
+
