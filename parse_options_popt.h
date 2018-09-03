@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
+ * Copyright (c) 2005, Doug Harple.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -28,17 +28,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: config_file.h,v 1.4 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: parse_options_popt.h,v 1.2 2005/03/05 01:54:56 purgedhalo Exp $
  *
  */
 
-#ifndef __CONFIG_FILE_H
-#define __CONFIG_FILE_H
+#include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include "detox.h"
+#include "file.h"
+#include "config.h"
+#include "clean_string.h"
 
-extern int config_file_lineno;
+#include "config_file.h"
+#include "parse_table.h"
 
-extern struct detox_sequence_list *parse_config_file(char *filename, struct detox_sequence_list *previous_list, struct detox_options *main_options);
+#include <popt.h>
 
-#endif				/* __CONFIG_FILE_H */
+struct detox_options *parse_options_popt(int argc, char **argv);

@@ -1,6 +1,6 @@
 %{
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: config_file.y,v 1.10 2004/08/08 03:15:10 purgedhalo Exp $
+ * $Id: config_file.y,v 1.14 2005/03/05 01:54:56 purgedhalo Exp $
  * 
  */
 
@@ -55,6 +55,8 @@ static struct detox_options *current_options;
 void cf_append_to_sequence_list(void);
 void cf_append_to_sequence(void *ptr, void *opts);
 
+void yyerror (char *s);
+
 %}
 
 %union {
@@ -65,7 +67,7 @@ void cf_append_to_sequence(void *ptr, void *opts);
 }
 
 %token <string> QSTRING ID
-%token <cmd> SEQUENCE UNCGI ISO8859_1 UTF_8 SAFE WIPEUP MAX_LENGTH
+%token <cmd> SEQUENCE UNCGI ISO8859_1 UTF_8 SAFE WIPEUP MAX_LENGTH LOWER
 %token <cmd> FILENAME REMOVE_TRAILING LENGTH
 %token <cmd> OPEN CLOSE EOL
 %token <nvalue> NVALUE 
@@ -92,6 +94,8 @@ sequence_close: CLOSE EOL { cf_append_to_sequence_list(); }
 method: UNCGI EOL	{ cf_append_to_sequence(&clean_uncgi, NULL); }
 	| 
 	SAFE EOL	{ cf_append_to_sequence(&clean_safe, NULL); }
+	| 
+	LOWER EOL	{ cf_append_to_sequence(&clean_lower, NULL); }
 	| 
 	wipeup EOL
 	| 
@@ -192,10 +196,10 @@ struct detox_sequence_list *parse_config_file(char *filename, struct detox_seque
 	current_filename = filename;
 	current_options = main_options;
 
-	//
-	// XXX - Should we be closing the default yyin/yyout?  If so, should we
-	// be setting them to NULL at the end of this function?
-	//
+	/* 
+	 * XXX - Should we be closing the default yyin/yyout?  If so, should we
+	 * be setting them to NULL at the end of this function?
+	 */
 
 	yyin = fopen(filename, "r");
 	if (yyin == NULL) {
@@ -229,10 +233,9 @@ struct detox_sequence_list *parse_config_file(char *filename, struct detox_seque
 }
 
 void yyerror (char *s) {
-	//
-	// XXX - Is extern valid here?  Does it do what I'm expecting?
-	//
-	extern int yylineno;
+	/*
+	 * XXX - Is extern valid here?  Does it do what I'm expecting?
+	 */
 	extern char *yytext;
 
 	fprintf(stderr, "detox: error parsing config file %s: %s\n", current_filename, s);
@@ -268,9 +271,9 @@ void cf_append_to_sequence_list(void) {
 	}
 
 	if (work != NULL) {
-		// 
-		// XXX - Free Old Tree
-		//
+		/*
+		 * XXX - Free Old Tree
+		 */
 	}
 	else {
 		work = malloc(sizeof(struct detox_sequence_list));
@@ -278,10 +281,10 @@ void cf_append_to_sequence_list(void) {
 
 		work->name = strdup(current_name);
 
-		// 
-		// Append to the tree first.  If we don't, we could create a
-		// circular reference.
-		//
+		/*
+		 * Append to the tree first.  If we don't, we could create a
+		 * circular reference.
+		 */
 		if (cf_sl_ret == NULL) {
 			cf_sl_ret = cf_sl_current = work;
 		}

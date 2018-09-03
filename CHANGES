@@ -1,3 +1,10 @@
+Version 1.1.0:
+	Added lowercase filter.
+	Added libpopt support to facilitate long options on Darwin or
+		Solaris.
+	Fixed some compiler gripes with lex/yacc.
+	Replaced the hardcoded -ll in Makefile.in with @LEXLIB@.
+
 Version 1.0.0:
 	Added a new filter for translating UTF-8 encoded Unicode characters.
 	Added handling of configuration files for controlling what sequence

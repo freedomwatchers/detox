@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
- * 
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of author nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,9 +27,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * $Id: file.c,v 1.8 2004/08/07 04:47:09 purgedhalo Exp $
- * 
+ *
+ * $Id: file.c,v 1.10 2005/03/05 01:54:56 purgedhalo Exp $
+ *
  */
 
 #include <sys/stat.h>
@@ -75,14 +75,14 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 	old_filename_ptr = strrchr(old_filename, '/');
 	if (old_filename_ptr != NULL) {
 		old_filename_ptr++;
-	} 
+	}
 	else {
 		old_filename_ptr = old_filename;
 	}
 
-	// 
-	// Do the actual filename cleaning
-	// 
+	/*
+	 * Do the actual filename cleaning
+	 */
 
 	sequence = options->sequence;
 
@@ -90,7 +90,6 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 
 	while (sequence != NULL && work != NULL) {
 		hold = sequence->cleaner(work, sequence->options);
-		// printf("work -> hold: %s -> %s\n", work, hold);
 		if (work != NULL) {
 			free(work);
 		}
@@ -130,8 +129,8 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 
 	err = lstat(new_filename, &stat_info);
 	if (err != -1) {
-		fprintf(stderr, "Cannot rename %s to %s: file already exists\n", 
-				old_filename, new_filename);
+		fprintf(stderr, "Cannot rename %s to %s: file already exists\n",
+			old_filename, new_filename);
 
 		free(new_filename);
 		return old_filename;
@@ -148,8 +147,8 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 
 	err = rename(old_filename, new_filename);
 	if (err == -1) {
-		fprintf(stderr, "Cannot rename %s to %s: %s\n", 
-				old_filename, new_filename, strerror(errno));
+		fprintf(stderr, "Cannot rename %s to %s: %s\n",
+			old_filename, new_filename, strerror(errno));
 		free(new_filename);
 		return old_filename;
 	}
@@ -162,7 +161,7 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 /*
  * Handles directory.
  */
-void parse_dir(unsigned char *indir, struct detox_options * options)
+void parse_dir(unsigned char *indir, struct detox_options *options)
 {
 	unsigned char *new_file, *work;
 	DIR *dir_handle;
@@ -215,11 +214,11 @@ void parse_dir(unsigned char *indir, struct detox_options * options)
 					parse_dir(work, options);
 				}
 				free(work);
-			} 
+			}
 			else if (S_ISREG(stat_info.st_mode)) {
 				work = parse_file(new_file, options);
 				free(work);
-			} 
+			}
 			else if (options->special) {
 				parse_special(new_file, options);
 			}
@@ -232,7 +231,7 @@ void parse_dir(unsigned char *indir, struct detox_options * options)
 /*
  * Handles a special file.
  */
-void parse_special(unsigned char *in, struct detox_options * options)
+void parse_special(unsigned char *in, struct detox_options *options)
 {
 	struct stat stat_info;
 	char *new_file, *work;

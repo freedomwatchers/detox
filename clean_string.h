@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
- * 
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of author nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,9 +27,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * $Id: clean_string.h,v 1.10 2004/08/07 04:47:09 purgedhalo Exp $
- * 
+ *
+ * $Id: clean_string.h,v 1.13 2005/03/05 01:54:56 purgedhalo Exp $
+ *
  */
 
 #ifndef __CLEAN_STRING_H
@@ -52,5 +52,6 @@ unsigned char *clean_wipeup(unsigned char *s, void *options);
 unsigned char *clean_utf_8_basic(unsigned char *s, void *options);
 unsigned char *clean_utf_8(unsigned char *s, void *options);
 unsigned char *clean_max_length(unsigned char *s, void *opts);
+unsigned char *clean_lower(unsigned char *s, void *opts);
 
 #endif				/* __CLEAN_STRING_H */

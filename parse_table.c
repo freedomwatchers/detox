@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
- * 
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of author nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,9 +27,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * $Id: parse_table.c,v 1.5 2004/08/01 03:00:31 purgedhalo Exp $
- * 
+ *
+ * $Id: parse_table.c,v 1.7 2005/03/05 01:54:56 purgedhalo Exp $
+ *
  */
 
 #include <sys/types.h>
@@ -47,7 +47,8 @@ enum {
 	INSIDE_STATE
 };
 
-struct translation_table *parse_table(char *filename) {
+struct translation_table *parse_table(char *filename)
+{
 	FILE *ttable_file;
 	char *work;
 	int code;
@@ -63,11 +64,8 @@ struct translation_table *parse_table(char *filename) {
 
 	struct stat ttable_stat;
 
-	// printf("parsing: %s\n", filename);
-
 	err = stat(filename, &ttable_stat);
 	if (err == -1) {
-//		fprintf(stderr, "Unable to stat translation table: %s\n", strerror(errno));
 		return NULL;
 	}
 
@@ -110,11 +108,12 @@ struct translation_table *parse_table(char *filename) {
 	max_data_length = 1;
 	state = BASE_STATE;
 
-	while(fgets(work, 1024, ttable_file) != NULL) {
+	while (fgets(work, 1024, ttable_file) != NULL) {
 		if (*work == '#') {
-			// 
-			// Don't even bother
-			//
+
+			/*
+			 * Don't even bother
+			 */
 			continue;
 		}
 
@@ -161,18 +160,19 @@ struct translation_table *parse_table(char *filename) {
 			continue;
 		}
 
-		//
-		// Inside state
-		//
+		/*
+		 * Inside state
+		 */
 
 		code = -1;
 
 		ret = sscanf(work, "%i %n", &code, &offset);
 
 		if (ret == 0 || code < 0 || offset < 0) {
-			//
-			// Check for end
-			//
+
+			/*
+			 * Check for end
+			 */
 			ret = sscanf(work, " %s %n", parsed, &offset);
 
 			if (ret > 0 && strncasecmp(parsed, "end", 5) == 0) {
@@ -212,5 +212,3 @@ struct translation_table *parse_table(char *filename) {
 
 	return table;
 }
-
-

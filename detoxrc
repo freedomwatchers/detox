@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2004, Doug Harple.  All rights reserved.
+# Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -28,7 +28,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# $Id: detoxrc,v 1.4 2004/08/06 04:58:51 purgedhalo Exp $
+# $Id: detoxrc,v 1.6 2005/02/28 02:24:25 purgedhalo Exp $
 #
 
 #
@@ -58,4 +58,10 @@ sequence "uncgi" {
 	wipeup;
 };
 
+sequence "lower" {
+	iso8859_1;
+	safe;
+	lower;
+	wipeup;
+};
 

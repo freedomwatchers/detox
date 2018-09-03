@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
- * 
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of author nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,9 +27,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * $Id: file.h,v 1.4 2004/02/15 00:01:37 purgedhalo Exp $
- * 
+ *
+ * $Id: file.h,v 1.6 2005/03/05 01:54:56 purgedhalo Exp $
+ *
  */
 
 #ifndef __FILE_H
@@ -37,8 +37,8 @@
 
 #include "detox.h"
 
-unsigned char *parse_file(unsigned char *filename, 
-		struct detox_options *options);
+unsigned char *parse_file(unsigned char *filename,
+			       struct detox_options *options);
 
 void parse_dir(unsigned char *indir, struct detox_options *options);
 

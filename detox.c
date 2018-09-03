@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
- * 
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 
+ *
  * 3. Neither the name of author nor the names of its contributors may be
  *    used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -27,9 +27,9 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * $Id: detox.c,v 1.19 2004/08/08 03:58:15 purgedhalo Exp $
- * 
+ *
+ * $Id: detox.c,v 1.22 2005/03/05 01:54:56 purgedhalo Exp $
+ *
  */
 
 #include <sys/stat.h>
@@ -48,76 +48,16 @@
 #include "config_file.h"
 #include "parse_table.h"
 
-#ifdef HAVE_GETOPT_LONG
-#include <getopt.h>
-#endif
-
-enum {
-	LONG_OPTION_DRY_RUN = 1,
-	LONG_OPTION_REMOVE_TRAILING,
-	LONG_OPTION_SPECIAL
-};
-
-/* expect this to be overwritten! */
-int long_option = 0;
-
-#ifdef HAVE_GETOPT_LONG
-static struct option longopts[] = {
-	/* long options with equivalents */
-	{"help", no_argument, 0, 'h'},
-	{"dry-run", no_argument, 0, 'n'},
-
-	/* long options without */
-	{"special", no_argument, &long_option, LONG_OPTION_SPECIAL},
-
-	/* deprecated long opts without */
-	{"remove-trailing", no_argument, &long_option, LONG_OPTION_REMOVE_TRAILING},
-
-	/* done */
-	{0, 0, 0, 0}
-};
-#endif
-
-char usage_message[] = 
-	"usage: detox [-hLnrvV] [-f configfile] [-s sequence]"
-#ifdef HAVE_GETOPT_LONG
-	" [--dry-run] [--special]"
-#endif
-	" [file ...]\n";
-
-char help_message[] = {
-	"	-f configfile	choose which config file to use\n"
-#ifdef HAVE_GETOPT_LONG
-	"	-h --help	this message\n"
+#ifndef HAVE_LIBPOPT
+#include "parse_options_getopt.h"
 #else
-	"	-h 		this message\n"
+#include "parse_options_popt.h"
 #endif
-	"	-L		list available sequences and exit\n"
-	"			with -v ... dump sequence contents\n"
-#ifdef HAVE_GETOPT_LONG
-	"	-n --dry-run	do a dry run (don't actually do anything)\n"
-#else
-	"	-n 		do a dry run (don't actually do anything)\n"
-#endif
-	"	-r 		be recursive (descend into subdirectories)\n"
-#ifdef HAVE_GETOPT_LONG
-	"	--remove-trailing (deprecated)\n"
-	"			remove trailing _ and - before a period\n"
-#endif
-	"	-s sequence	choose which sequence to detox with\n"
-#ifdef HAVE_GETOPT_LONG
-	"	--special	work on links and special files\n"
-#endif
-	"	-v 		be verbose\n"
-	"	-V 		show the current version\n"
-};
-
-struct detox_options main_options;
 
 int main(int argc, char **argv)
 {
 	struct stat stat_info;
-	int optcode, err;
+	int err;
 
 	struct detox_sequence_list *sequences = NULL;
 	struct detox_sequence_list *list_work = NULL;
@@ -126,91 +66,26 @@ int main(int argc, char **argv)
 
 	char *check_config_file = NULL;
 
-	memset(&main_options, 0, sizeof(struct detox_options));
+	struct detox_options *main_options;
 
-	//
-	// XXX - handle blank strings better
-	//
-	main_options.sequence_name = getenv("DETOX_SEQUENCE");
+	char **file_walk;
 
-#ifdef HAVE_GETOPT_LONG
-	while ((optcode = getopt_long(argc, argv, "hrvV?Ls:f:n", longopts, NULL)) != -1) {
+#ifndef HAVE_LIBPOPT
+	main_options = parse_options_getopt(argc, argv);
 #else
-	while ((optcode = getopt(argc, argv, "hrvV?Ls:f:n")) != -1) {
+	main_options = parse_options_popt(argc, argv);
 #endif
-		switch (optcode) {
-			case 'h':
-				printf(usage_message);
-				printf(help_message);
-				return 0;
 
-			case 'f':
-				//
-				// XXX - free multiple check_config_files
-				//
-				check_config_file = strdup(optarg);
-				break;
+	if (main_options == NULL) {
+		return -1;
+	}
 
-			case 'L':
-				main_options.list_sequences = 1;
-				break;
-
-			case 'n':
-				main_options.dry_run = 1;
-				break;
-
-			case 'r':
-				main_options.recurse = 1;
-				break;
-
-			case 's':
-				//
-				// XXX - free multiple sequence name opts
-				//
-				main_options.sequence_name = strdup(optarg);
-				break;
-
-			case 'v':
-				main_options.verbose++;
-				break;
-
-			case 'V':
-				printf("%s\n", PACKAGE_STRING);
-				return 0;
-
-			case '?':
-				printf(usage_message);
-				return 0;
-
-			case 0:
-				switch (long_option) {
-					case LONG_OPTION_REMOVE_TRAILING:
-						main_options.remove_trailing = 1;
-						break;
-
-					case LONG_OPTION_SPECIAL:
-						main_options.special = 1;
-						break;
-
-					default:
-						/*
-						 * getopt_long shouldn't let us get here...
-						 * verify?
-						 */
-						printf("unknown option: %s\n", optarg);
-						break;
-				}
-				long_option = 0;	/* clean up! */
-				break;
-
-			default:
-				printf("unknown option: %c\n", optcode);
-				return -1;
-		}
+	if (main_options->check_config_file) {
+		check_config_file = strdup(main_options->check_config_file);
 	}
 
 	if (check_config_file != NULL) {
-		sequences = parse_config_file(check_config_file, NULL, &main_options);
+		sequences = parse_config_file(check_config_file, NULL, main_options);
 		if (sequences == NULL) {
 			fprintf(stderr, "detox: unable to open: %s\n", check_config_file);
 			exit(-1);
@@ -220,23 +95,24 @@ int main(int argc, char **argv)
 		check_config_file = malloc(256);
 
 		snprintf(check_config_file, 256, "%s/detoxrc", default_etc_dir);
-		sequences = parse_config_file(check_config_file, NULL, &main_options);
+		sequences = parse_config_file(check_config_file, NULL, main_options);
 
 		if (sequences == NULL) {
-			sequences = parse_config_file("/etc/detoxrc", NULL, &main_options);
+			sequences = parse_config_file("/etc/detoxrc", NULL, main_options);
 		}
 
 		if (sequences == NULL) {
-			sequences = parse_config_file("/usr/local/etc/detoxrc", NULL, &main_options);
+			sequences = parse_config_file("/usr/local/etc/detoxrc", NULL, main_options);
 		}
 
 		snprintf(check_config_file, 256, "%s/.detoxrc", getenv("HOME"));
-		sequences = parse_config_file(check_config_file, sequences, &main_options);
+		sequences = parse_config_file(check_config_file, sequences, main_options);
 
 		if (sequences == NULL) {
-			//
-			// Head
-			//
+
+			/*
+			 * Head
+			 */
 
 			sequences = malloc(sizeof(struct detox_sequence_list));
 			memset(sequences, 0, sizeof(struct detox_sequence_list));
@@ -244,9 +120,9 @@ int main(int argc, char **argv)
 			sequences->name = strdup("default");
 			sequences->source_filename = strdup("inside the beast");
 
-			//
-			// Step 1 - ISO8859_1
-			//
+			/*
+			 * Step 1 - ISO8859_1
+			 */
 
 			sequences->head = malloc(sizeof(struct detox_sequence));
 			work = sequences->head;
@@ -254,9 +130,9 @@ int main(int argc, char **argv)
 
 			work->cleaner = &clean_iso8859_1;
 
-			//
-			// Step 2 - Safe
-			//
+			/*
+			 * Step 2 - Safe
+			 */
 
 			work->next = malloc(sizeof(struct detox_sequence));
 			work = work->next;
@@ -264,9 +140,9 @@ int main(int argc, char **argv)
 
 			work->cleaner = &clean_safe;
 
-			//
-			// Step 3 - Wipe Up
-			//
+			/*
+			 * Step 3 - Wipe Up
+			 */
 
 			work->next = malloc(sizeof(struct detox_sequence));
 			work = work->next;
@@ -274,10 +150,10 @@ int main(int argc, char **argv)
 
 			work->cleaner = &clean_wipeup;
 
-			//
-			// Deprecated
-			//
-			if (main_options.remove_trailing) {
+			/*
+			 * Deprecated
+			 */
+			if (main_options->remove_trailing) {
 				static struct clean_string_options *csopts;
 
 				csopts = malloc(sizeof(struct clean_string_options));
@@ -292,16 +168,16 @@ int main(int argc, char **argv)
 	}
 
 
-	//
-	// Determine which sequence to use
-	//
+	/*
+	 * Determine which sequence to use
+	 */
 
 	which_sequence = NULL;
 
 	list_work = sequences;
 
 	while (list_work != NULL) {
-		if (strcmp(list_work->name, (main_options.sequence_name==NULL)?"default":main_options.sequence_name) == 0) {
+		if (strcmp(list_work->name, (main_options->sequence_name == NULL) ? "default" : main_options->sequence_name) == 0) {
 			which_sequence = list_work->head;
 			break;
 		}
@@ -309,38 +185,38 @@ int main(int argc, char **argv)
 		list_work = list_work->next;
 	}
 
-	//
-	// If no sequence was found, and the user didn't specify a sequence to use,
-	// just use the first sequence.
-	//
+	/*
+	 * If no sequence was found, and the user didn't specify a sequence
+	 * to use, just use the first sequence.
+	 */
 
-	if (which_sequence == NULL && main_options.sequence_name == NULL) {
+	if (which_sequence == NULL && main_options->sequence_name == NULL) {
 		if (sequences != NULL) {
 			which_sequence = sequences->head;
 		}
 	}
 
-	main_options.sequence = which_sequence;
+	main_options->sequence = which_sequence;
 
-	//
-	// List sequences
-	//
-	if (main_options.list_sequences) {
-		if (!main_options.verbose) {
+	/*
+	 * List sequences
+	 */
+	if (main_options->list_sequences) {
+		if (!main_options->verbose) {
 			printf("available sequences:\n");
 		}
 
 		list_work = sequences;
 
 		while (list_work != NULL) {
-			if (main_options.verbose) {
+			if (main_options->verbose) {
 				printf("sequence name: ");
 			}
 			else {
 				printf("\t");
 			}
-			printf("%s%s\n", list_work->name, (main_options.sequence == list_work->head)?" (*)":"");
-			if (main_options.verbose) {
+			printf("%s%s\n", list_work->name, (main_options->sequence == list_work->head) ? " (*)" : "");
+			if (main_options->verbose) {
 				printf("\tsource file: %s\n", list_work->source_filename);
 
 				work = list_work->head;
@@ -355,7 +231,7 @@ int main(int argc, char **argv)
 						printf("\tcleaner: wipeup\n");
 						if (work->options != NULL) {
 							struct clean_string_options *opts = work->options;
-							printf("\t\tremove trailing: %s\n", opts->remove_trailing?"yes":"no");
+							printf("\t\tremove trailing: %s\n", opts->remove_trailing ? "yes" : "no");
 						}
 					}
 					else if (work->cleaner == &clean_iso8859_1) {
@@ -383,6 +259,9 @@ int main(int argc, char **argv)
 							printf("\t\tlength: %d\n", opts->max_length);
 						}
 					}
+					if (work->cleaner == &clean_lower) {
+						printf("\tcleaner: lower\n");
+					}
 
 					work = work->next;
 				}
@@ -394,22 +273,23 @@ int main(int argc, char **argv)
 		exit(0);
 	}
 
-	//
-	// Fail if no sequence is available
-	//
-	if (main_options.sequence == NULL) {
-		//
-		// XXX - Explain this better
-		//
+	/*
+	 * Fail if no sequence is available
+	 */
+	if (main_options->sequence == NULL) {
+
+		/*
+		 * XXX - Explain this better
+		 */
 		fprintf(stderr, "detox: no sequence to work with\n");
-		exit (-1);
+		exit(-1);
 	}
 
-	//
-	// Check translation tables
-	//
-	
-	work = main_options.sequence;
+	/*
+	 * Check translation tables
+	 */
+
+	work = main_options->sequence;
 	while (work != NULL) {
 		char *check_filename = NULL;
 		int do_search = 0;
@@ -466,9 +346,11 @@ int main(int argc, char **argv)
 				}
 
 				if (table == NULL) {
-					//
-					// Fall back to the non-file based cleaner
-					//
+
+					/*
+					 * Fall back to the non-file based
+					 * cleaner
+					 */
 					if (work->cleaner == &clean_iso8859_1) {
 						work->cleaner = &clean_iso8859_1_basic;
 					}
@@ -479,12 +361,12 @@ int main(int argc, char **argv)
 						fprintf(stderr, "detox: unable to locate translation table or fall back\n");
 						exit(-1);
 					}
-					// printf("Fell back to default cleaner\n");
 				}
 				else {
-					//
-					// Allocate an options
-					//
+
+					/*
+					 * Allocate an options
+					 */
 					opts = malloc(sizeof(struct clean_string_options));
 					memset(opts, 0, sizeof(struct clean_string_options));
 
@@ -500,8 +382,6 @@ int main(int argc, char **argv)
 					fprintf(stderr, "detox: unable to parse file: %s\n", check_filename);
 					exit(-1);
 				}
-				
-				// printf("max data length = %d\n", table->max_data_length);
 
 				opts = work->options;
 				opts->translation_table = table;
@@ -513,38 +393,32 @@ int main(int argc, char **argv)
 	}
 
 
-
-	//
-	// Do some actual work
-	//
-	if (optind < argc) {
-		while (optind < argc) {
-			if (main_options.verbose) {
-				printf("Scanning: %s\n", argv[optind]);
-			}
-
-			err = lstat(argv[optind], &stat_info);
-			if (err == -1) {
-				fprintf(stderr, "%s: %s\n", argv[optind], strerror(errno));
-			}
-			else {
-				if (S_ISDIR(stat_info.st_mode)) {
-					parse_dir(argv[optind], &main_options);
-				} 
-				else if (S_ISREG(stat_info.st_mode)) {
-					parse_file(argv[optind], &main_options);
-				} 
-				else if (main_options.special) {
-					parse_special(argv[optind], &main_options);
-				}
-			}
-
-			optind++;
+	/*
+	 * Do some actual work
+	 */
+	file_walk = main_options->files;
+	while (*file_walk) {
+		if (main_options->verbose) {
+			printf("Scanning: %s\n", *file_walk);
 		}
-	} 
-	else {
-		printf(usage_message);
-		return -1;
+
+		err = lstat(*file_walk, &stat_info);
+		if (err == -1) {
+			fprintf(stderr, "%s: %s\n", *file_walk, strerror(errno));
+		}
+		else {
+			if (S_ISDIR(stat_info.st_mode)) {
+				parse_dir(*file_walk, main_options);
+			}
+			else if (S_ISREG(stat_info.st_mode)) {
+				parse_file(*file_walk, main_options);
+			}
+			else if (main_options->special) {
+				parse_special(*file_walk, main_options);
+			}
+		}
+
+		file_walk++;
 	}
 
 	return 0;

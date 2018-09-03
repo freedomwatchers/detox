@@ -1,6 +1,6 @@
 %{
 /*
- * Copyright (c) 2004, Doug Harple.  All rights reserved.
+ * Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: config_file.l,v 1.9 2004/08/08 03:15:10 purgedhalo Exp $
+ * $Id: config_file.l,v 1.12 2005/02/28 02:24:25 purgedhalo Exp $
  * 
  */
 
@@ -37,10 +37,6 @@
 #include <stdlib.h>
 
 #include "config_file_y.h"
-
-/* 
- * XXX - need to check option yylineno against AT&T lex
- */
 
 int config_file_lineno = 1;
 
@@ -67,6 +63,8 @@ int config_file_lineno = 1;
 [Ww][Ii][Pp][Ee][Uu][Pp]		{ return WIPEUP; }
 
 [Mm][Aa][Xx]_[Ll][Ee][Nn][Gg][Tt][Hh]	{ return MAX_LENGTH; }
+
+[Ll][Oo][Ww][Ee][Rr]			{ return LOWER; }
 
 [Ll][Ee][Nn][Gg][Tt][Hh]		{ return LENGTH; }
 

@@ -1,10 +1,18 @@
-detox is a program that renames files to make them easier to work with
-under Unix and related operating systems.  Spaces and various other unsafe
+-----------------------------------------------------------------------------
+                                   OVERVIEW
+-----------------------------------------------------------------------------
+
+detox is a program that renames files to make them easier to work with under
+Unix and related operating systems.  Spaces and various other unsafe
 characters (such as "$") get replaced with "_".  ISO 8859-1 (Latin-1)
 characters can be replaced as well, as can UTF-8 characters.  More details
 are contained in the detox.1 man page.
 
 This is a BETA release.  Please watch for falling bits.
+
+-----------------------------------------------------------------------------
+                           COMPILATION INSTRUCTIONS
+-----------------------------------------------------------------------------
 
 Compilation:
 	./configure
@@ -13,13 +21,28 @@ Compilation:
 Installation:
 	make install
 
-
-Notes on Compilation:
+-----------------------------------------------------------------------------
+                              COMPILATION NOTES
+-----------------------------------------------------------------------------
 
 Ensure that the path to lex/yacc (or an equivalent) is in your $PATH
 environmental variable.  For instance, under Solaris, you may need to add
 /usr/ccs/bin to your path to get detox to compile.
 
+     -------------------------------------------------------------------
+
+To get detox working with long options on Darwin or Solaris (or any other OS
+without getopt_long in its C library), I've included support for libpopt.
+Install libpopt and configure with the following:
+	./configure --with-popt
+
+If you've installed libpopt in a directory other than /usr, which is likely,
+you'll want to specify the base path to libpopt.  So, if popt.h is in
+/usr/local/include, you'll run configure like so:
+	./configure --with-popt=/usr/local
+
+-----------------------------------------------------------------------------
+                                RUNTIME NOTES
 -----------------------------------------------------------------------------
 
 The most important option to learn is -n, aka --dry-run.  This will let you
@@ -34,37 +57,47 @@ You can also just to specify the filename:
 	detox my\ bad\ file.txt
 
 You can also specify recursion (this works best on directories):
-	detox -r /music/transfered_from_elsewhere/
+	detox -r /music/transferred_from_elsewhere/
 
 -----------------------------------------------------------------------------
+                                 OTHER NOTES
+-----------------------------------------------------------------------------
 
-Notes:
-	This project was initially developed under Linux (RedHat 7.x, 8.x),
-	and is presently being maintained under FreeBSD 5.2.1.  If you run
-	into any problems with installation or operation please feel free
-	to contact me.
+This project was initially developed under Linux (RedHat 7.x, 8.x), and is
+presently being maintained under the FreeBSD 5.x series.  If you run into any
+problems with installation or operation please feel free to contact me.
 
-Bugs:
-	Extended options don't work under Solaris or Darwin.
+-----------------------------------------------------------------------------
+                                     BUGS
+-----------------------------------------------------------------------------
 
-Thanks:
-	Eric S. Raymond for his work on "The Art of UNIX Programming"
+None known at the moment.
 
-	http://www.bbsinc.com/iso8859.html for their help in building a
-	complete list of Latin-1 translations.
+-----------------------------------------------------------------------------
+                                    THANKS
+-----------------------------------------------------------------------------
 
-	SourceForge.net for their generous hosting of this and many other
-	projects.
+Many thanks to Miguel Angelo Rozsas for suggesting UTF-8 support and his
+valuable input following that suggestion.
 
-	http://en.wikipedia.org/wiki/UTF-8 for its help with explaining
-	UTF-8.
+Eric S. Raymond for his work on "The Art of UNIX Programming"
 
-	Data Structures Using C - Tenenbaum, Langsam and Augenstein - for
-	their help with hashes.
+http://www.bbsinc.com/iso8859.html for their help in building a complete list
+of Latin-1 translations.
 
-	Paul Oakenfold for his unbelievable mixes.  Version 1.0.0 was
-	developed with the help of his Great Wall mix.
+SourceForge.net for their generous hosting of this and many other projects.
 
-Contact:
-	Doug Harple <purgedhalo at users.sourceforge.net>
+http://en.wikipedia.org/wiki/UTF-8 for its help with explaining UTF-8.
+
+Data Structures Using C - Tenenbaum, Langsam and Augenstein - for their help
+with hashes.
+
+Paul Oakenfold for his unbelievable mixes.  Version 1.0.0 was developed with
+the help of his Great Wall mix.
+
+-----------------------------------------------------------------------------
+                                   CONTACT
+-----------------------------------------------------------------------------
+
+Doug Harple <purgedhalo at users.sourceforge.net>
 

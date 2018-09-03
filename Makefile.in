@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2004, Doug Harple.  All rights reserved.
+# Copyright (c) 2004-2005, Doug Harple.  All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -28,7 +28,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# $Id: Makefile.in,v 1.20 2004/08/08 04:17:37 purgedhalo Exp $
+# $Id: Makefile.in,v 1.24 2005/03/05 05:02:12 purgedhalo Exp $
 #
 
 prefix = @prefix@
@@ -38,19 +38,20 @@ mandir = @mandir@
 sysconfdir = @sysconfdir@
 datadir = @datadir@
 
-C_OPT = @CFLAGS@
-L_OPT = -ll
+CFLAGS += @CFLAGS@
+L_OPT = @LEXLIB@ @LIBS@
 
-CC = @CC@
+CC ?= @CC@
 LEX = @LEX@
 YACC = @YACC@
 INSTALL = @INSTALL@
 
 .c.o:
-	${CC} -c ${C_OPT} $<
+	${CC} -c ${CFLAGS} $<
 
 detoxOBJS = detox.o clean_string.o file.o table.o parse_table.o \
-	config_file_l.o config_file_y.o
+	config_file_l.o config_file_y.o \
+	parse_options_@option_parser@.o parse_options_generic.o
 
 detoxSRC = `echo ${detoxOBJS} | sed -e "s/[.]o/.c/g"`
 
@@ -88,7 +89,7 @@ detox.o: detox.c detox_path.h
 # Actions
 #
 
-install:
+install: detox
 	${INSTALL} -d ${bindir}
 	${INSTALL} -d ${mandir}/man1
 	${INSTALL} -d ${mandir}/man5
@@ -117,6 +118,6 @@ distclean: clean
 dep: depend
 
 depend:
-	mkdep ${C_OPT} ${detoxSRC}
+	mkdep ${CFLAGS} ${detoxSRC}
 
 dummy: 
