@@ -1,3 +1,4 @@
+%{
 /*
  * Copyright (c) 2004, Doug Harple.  All rights reserved.
  * 
@@ -28,40 +29,79 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: detox.h,v 1.8 2004/08/01 03:40:49 purgedhalo Exp $
+ * $Id: config_file.l,v 1.9 2004/08/08 03:15:10 purgedhalo Exp $
  * 
  */
 
-#ifndef __DETOX_H
-#define __DETOX_H
+#include <string.h>
+#include <stdlib.h>
 
-struct detox_sequence_list {
-	struct detox_sequence_list *next;
+#include "config_file_y.h"
 
-	char *name;
-	struct detox_sequence *head;
+/* 
+ * XXX - need to check option yylineno against AT&T lex
+ */
 
-	char *source_filename;
-};
+int config_file_lineno = 1;
 
-struct detox_sequence {
-	struct detox_sequence *next;
+%}
 
-	unsigned char *(*cleaner) (unsigned char *str, void *options);
-	void *options;
-};
+%%
 
-struct detox_options {
-	int verbose;
-	int recurse;
-	int dry_run;
-	int remove_trailing;
-	int special;
-	int list_sequences;
+[\t ]+		{ /* ignore whitespace */ }
 
-	struct detox_sequence *sequence;
+#.*		{ /* ignore comments */ }
 
-	char *sequence_name;
-};
+\n		{ config_file_lineno++; }
 
-#endif				/* __DETOX_H */
+[Ss][Ee][Qq][Uu][Ee][Nn][Cc][Ee]	{ return SEQUENCE; }
+
+[Uu][Nn][Cc][Gg][Ii]			{ return UNCGI; }
+
+[Ii][Ss][Oo]8859_1			{ return ISO8859_1; }
+
+[Uu][Tt][Ff]_8				{ return UTF_8; }
+
+[Ss][Aa][Ff][Ee]			{ return SAFE; }
+
+[Ww][Ii][Pp][Ee][Uu][Pp]		{ return WIPEUP; }
+
+[Mm][Aa][Xx]_[Ll][Ee][Nn][Gg][Tt][Hh]	{ return MAX_LENGTH; }
+
+[Ll][Ee][Nn][Gg][Tt][Hh]		{ return LENGTH; }
+
+[Ff][Ii][Ll][Ee][Nn][Aa][Mm][Ee]	{ return FILENAME; }
+
+[Rr][Ee][Mm][Oo][Vv][Ee]_[Tt][Rr][Aa][Ii][Ll][Ii][Nn][Gg]	{ return REMOVE_TRAILING; }
+
+[{]		{ return OPEN; }
+[}]		{ return CLOSE; }
+
+\"[^\"\n]*[\"\n] { 
+		  yylval.string = strdup(yytext+1);
+		  if (yylval.string[yyleng-2] != '"') {
+		    printf("Unterminated character string\n");
+		  }
+		  else {
+		    yylval.string[yyleng-2] = '\0';
+		  }
+		  return QSTRING;
+		}
+
+[a-zA-Z][a-zA-Z0-9_]*	{ 
+		  yylval.string = strdup(yytext); 
+		  return ID; 
+		}
+
+[0-9]+		{ 
+		  yylval.nvalue = atoi(yytext); 
+		  return NVALUE; 
+		}
+
+
+
+[;]		{ return EOL; }
+
+%%
+
+

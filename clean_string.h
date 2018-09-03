@@ -28,16 +28,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: clean_string.h,v 1.3 2004/02/15 00:01:37 purgedhalo Exp $
+ * $Id: clean_string.h,v 1.10 2004/08/07 04:47:09 purgedhalo Exp $
  * 
  */
 
 #ifndef __CLEAN_STRING_H
 #define __CLEAN_STRING_H
 
-unsigned char *clean_iso8859_1(unsigned char *s);
-unsigned char *clean_safe(unsigned char *s);
-unsigned char *clean_uncgi(unsigned char *s);
-unsigned char *clean_wipeup(unsigned char *s, int hard);
+struct clean_string_options {
+	char *filename;
+	int remove_trailing;
+	unsigned int max_length;
+
+	void *misc;
+	void *translation_table;
+};
+
+unsigned char *clean_iso8859_1_basic(unsigned char *s, void *options);
+unsigned char *clean_iso8859_1(unsigned char *s, void *options);
+unsigned char *clean_safe(unsigned char *s, void *options);
+unsigned char *clean_uncgi(unsigned char *s, void *options);
+unsigned char *clean_wipeup(unsigned char *s, void *options);
+unsigned char *clean_utf_8_basic(unsigned char *s, void *options);
+unsigned char *clean_utf_8(unsigned char *s, void *options);
+unsigned char *clean_max_length(unsigned char *s, void *opts);
 
 #endif				/* __CLEAN_STRING_H */

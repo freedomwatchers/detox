@@ -28,40 +28,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: detox.h,v 1.8 2004/08/01 03:40:49 purgedhalo Exp $
+ * $Id: config_file.h,v 1.2 2004/08/08 03:15:10 purgedhalo Exp $
  * 
  */
 
-#ifndef __DETOX_H
-#define __DETOX_H
+#ifndef __CONFIG_FILE_H
+#define __CONFIG_FILE_H
 
-struct detox_sequence_list {
-	struct detox_sequence_list *next;
+#include "detox.h"
 
-	char *name;
-	struct detox_sequence *head;
+extern int config_file_lineno;
 
-	char *source_filename;
-};
+extern struct detox_sequence_list *parse_config_file(char *filename, struct detox_sequence_list *previous_list, struct detox_options *main_options);
 
-struct detox_sequence {
-	struct detox_sequence *next;
-
-	unsigned char *(*cleaner) (unsigned char *str, void *options);
-	void *options;
-};
-
-struct detox_options {
-	int verbose;
-	int recurse;
-	int dry_run;
-	int remove_trailing;
-	int special;
-	int list_sequences;
-
-	struct detox_sequence *sequence;
-
-	char *sequence_name;
-};
-
-#endif				/* __DETOX_H */
+#endif /* __CONFIG_FILE_H */

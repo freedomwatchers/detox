@@ -1,10 +1,13 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(detox, 0.9.0, purgedhalo at users.sourceforge.net)
+AC_INIT(detox, 1.0.0, purgedhalo at users.sourceforge.net)
 AC_CONFIG_SRCDIR([detox.c])
 AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_LEX
+AC_PROG_YACC
+AC_PROG_INSTALL
 
 # Checks for libraries.
 
@@ -21,5 +24,4 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset strrchr strstr strtol getopt_long])
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([install.sh], [chmod +x install.sh])
 AC_OUTPUT

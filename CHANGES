@@ -1,3 +1,24 @@
+Version 1.0.0:
+	Added a new filter for translating UTF-8 encoded Unicode characters.
+	Added handling of configuration files for controlling what sequence
+		filters are run in.
+	Added handling of loadable translation tables, so the user can control
+		how the ISO 8859-1 and Unicode filters operate.
+	Added a new filter for trimming based on the max length.
+	Added command line options: 
+		-f	set config file
+		-L	list sequences
+		-n	the same as --dry-run
+		-s	set sequence
+	Added handling for an environmental variable DETOX_SEQUENCE, which
+		sets the default sequence name.
+	Translation of some Icelandic characters has changed.  0xd0, 0xde,
+		0xf0, 0xfe, the Icelandic characters for "Eth" and "Thorn" have
+		been changed from "D", "Y", "o", "y" to "TH" and "th".
+	Fixed translation of 0xfc (u), 0xfd (y) and 0xff (y).
+	Added .depend generation to the Makefile.
+	Created more man pages (detoxrc.5 and detox.tbl.5).
+
 Version 0.9.1:
 	Added -d flag to install 
 	Broke installation out into a script to handle differences between

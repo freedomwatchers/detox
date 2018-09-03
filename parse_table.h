@@ -28,40 +28,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: detox.h,v 1.8 2004/08/01 03:40:49 purgedhalo Exp $
+ * $Id: parse_table.h,v 1.1 2004/07/24 04:55:48 purgedhalo Exp $
  * 
  */
 
-#ifndef __DETOX_H
-#define __DETOX_H
+#ifndef __PARSE_TABLE_H
+#define __PARSE_TABLE_H
 
-struct detox_sequence_list {
-	struct detox_sequence_list *next;
+#include "table.h"
 
-	char *name;
-	struct detox_sequence *head;
+extern struct translation_table *parse_table(char *filename);
 
-	char *source_filename;
-};
-
-struct detox_sequence {
-	struct detox_sequence *next;
-
-	unsigned char *(*cleaner) (unsigned char *str, void *options);
-	void *options;
-};
-
-struct detox_options {
-	int verbose;
-	int recurse;
-	int dry_run;
-	int remove_trailing;
-	int special;
-	int list_sequences;
-
-	struct detox_sequence *sequence;
-
-	char *sequence_name;
-};
-
-#endif				/* __DETOX_H */
+#endif /* __PARSE_TABLE_H */

@@ -1,8 +1,8 @@
 detox is a program that renames files to make them easier to work with
 under Unix and related operating systems.  Spaces and various other unsafe
-characters (such as "$") get replaced with "_".  ISO8859.1 (Latin-1)
-characters will be replaced as well, as intelligently as possible (for
-instance, "A" with an umlaut gets replaced with "A").
+characters (such as "$") get replaced with "_".  ISO 8859-1 (Latin-1)
+characters can be replaced as well, as can UTF-8 characters.  More details
+are contained in the detox.1 man page.
 
 This is a BETA release.  Please watch for falling bits.
 
@@ -13,7 +13,18 @@ Compilation:
 Installation:
 	make install
 
+
+Notes on Compilation:
+
+Ensure that the path to lex/yacc (or an equivalent) is in your $PATH
+environmental variable.  For instance, under Solaris, you may need to add
+/usr/ccs/bin to your path to get detox to compile.
+
 -----------------------------------------------------------------------------
+
+The most important option to learn is -n, aka --dry-run.  This will let you
+run detox without actually changing any files, so that you can get an idea
+of what detox is all about.
 
 The simplest way to run detox is to just run it on a directory containing
 files that need work:
@@ -29,7 +40,7 @@ You can also specify recursion (this works best on directories):
 
 Notes:
 	This project was initially developed under Linux (RedHat 7.x, 8.x),
-	and is presently being maintained under FreeBSD 5.1.  If you run
+	and is presently being maintained under FreeBSD 5.2.1.  If you run
 	into any problems with installation or operation please feel free
 	to contact me.
 
@@ -44,6 +55,15 @@ Thanks:
 
 	SourceForge.net for their generous hosting of this and many other
 	projects.
+
+	http://en.wikipedia.org/wiki/UTF-8 for its help with explaining
+	UTF-8.
+
+	Data Structures Using C - Tenenbaum, Langsam and Augenstein - for
+	their help with hashes.
+
+	Paul Oakenfold for his unbelievable mixes.  Version 1.0.0 was
+	developed with the help of his Great Wall mix.
 
 Contact:
 	Doug Harple <purgedhalo at users.sourceforge.net>

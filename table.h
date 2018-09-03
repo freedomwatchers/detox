@@ -28,40 +28,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: detox.h,v 1.8 2004/08/01 03:40:49 purgedhalo Exp $
+ * $Id: table.h,v 1.4 2004/08/06 03:18:16 purgedhalo Exp $
  * 
  */
 
-#ifndef __DETOX_H
-#define __DETOX_H
+#ifndef __TABLE_H
+#define __TABLE_H
 
-struct detox_sequence_list {
-	struct detox_sequence_list *next;
-
-	char *name;
-	struct detox_sequence *head;
-
-	char *source_filename;
+struct translation_table_row {
+	int key;
+	char *data;
 };
 
-struct detox_sequence {
-	struct detox_sequence *next;
+struct translation_table {
+	int length;
+	int used;
 
-	unsigned char *(*cleaner) (unsigned char *str, void *options);
-	void *options;
+	int max_data_length;
+
+	char *default_translation;
+
+	struct translation_table_row *rows;
+
+	int hits, misses, overwrites;
 };
 
-struct detox_options {
-	int verbose;
-	int recurse;
-	int dry_run;
-	int remove_trailing;
-	int special;
-	int list_sequences;
+extern struct translation_table *table_init(int max_rows);
+extern int table_put(struct translation_table *table, int key, char *data);
+extern char *table_get(struct translation_table *table, int key);
 
-	struct detox_sequence *sequence;
+#endif /*  __TABLE_H */
 
-	char *sequence_name;
-};
-
-#endif				/* __DETOX_H */

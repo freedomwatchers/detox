@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: file.c,v 1.6 2004/02/16 03:17:15 purgedhalo Exp $
+ * $Id: file.c,v 1.8 2004/08/07 04:47:09 purgedhalo Exp $
  * 
  */
 
@@ -53,13 +53,16 @@ char badfiles[3][30] = {
 /*
  * Renames file to a safe filename.
  */
-unsigned char *parse_file(unsigned char *filename, struct detox_options * options)
+unsigned char *parse_file(unsigned char *filename, struct detox_options *options)
 {
 	unsigned char *old_filename, *old_filename_ptr, *new_filename;
 	unsigned char *work, *hold;
 
 	struct stat stat_info;
-	int err, len;
+	int err;
+	unsigned int len;
+
+	struct detox_sequence *sequence;
 
 	len = strlen(filename) + 1;
 	old_filename = malloc(len);
@@ -77,25 +80,24 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options * option
 		old_filename_ptr = old_filename;
 	}
 
-	work = clean_uncgi(old_filename_ptr);
+	// 
+	// Do the actual filename cleaning
+	// 
 
-	hold = clean_iso8859_1(work);
-	if (work != NULL) {
-		free(work);
-	}
-	work = hold;
+	sequence = options->sequence;
 
-	hold = clean_safe(work);
-	if (work != NULL) {
-		free(work);
-	}
-	work = hold;
+	work = strdup(old_filename_ptr);
 
-	hold = clean_wipeup(work, options->remove_trailing);
-	if (work != NULL) {
-		free(work);
+	while (sequence != NULL && work != NULL) {
+		hold = sequence->cleaner(work, sequence->options);
+		// printf("work -> hold: %s -> %s\n", work, hold);
+		if (work != NULL) {
+			free(work);
+		}
+		work = hold;
+
+		sequence = sequence->next;
 	}
-	work = hold;
 
 	if (work == NULL) {
 		return old_filename;
