@@ -1,3 +1,13 @@
+Version 1.1.1:
+	Modified Makefile to support parallel builds.
+	Added ${DESTDIR} to install paths, for Gentoo package builds.
+	Modified the install script to not overwrite existing configuration
+		files or translation tables.
+	Modified the install script to install the config file and translation
+		tables as ".sample" as well as the working version, for all
+		users, but in particular, to make patching the Makefile easier
+		for the FreeBSD port.
+
 Version 1.1.0:
 	Added lowercase filter.
 	Added libpopt support to facilitate long options on Darwin or

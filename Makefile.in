@@ -28,7 +28,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# $Id: Makefile.in,v 1.24 2005/03/05 05:02:12 purgedhalo Exp $
+# $Id: Makefile.in,v 1.24.2.7 2005/03/13 07:47:13 purgedhalo Exp $
 #
 
 prefix = @prefix@
@@ -38,10 +38,10 @@ mandir = @mandir@
 sysconfdir = @sysconfdir@
 datadir = @datadir@
 
-CFLAGS += @CFLAGS@
+CFLAGS = @CFLAGS@
 L_OPT = @LEXLIB@ @LIBS@
 
-CC ?= @CC@
+CC = @CC@
 LEX = @LEX@
 YACC = @YACC@
 INSTALL = @INSTALL@
@@ -72,10 +72,13 @@ config_file_l.c: config_file.l config_file_y.h
 	${LEX} config_file.l
 	mv lex.yy.c config_file_l.c
 
-config_file_y.h config_file_y.c: config_file.y
+config_file_y.c: config_file.y
 	${YACC} -d config_file.y
 	mv y.tab.c config_file_y.c
 	mv y.tab.h config_file_y.h
+
+# In case some future rule depends on config_file_y.h
+config_file_y.h: config_file_y.c
 
 detox_path.h: config.status
 	> detox_path.h
@@ -89,17 +92,46 @@ detox.o: detox.c detox_path.h
 # Actions
 #
 
-install: detox
-	${INSTALL} -d ${bindir}
-	${INSTALL} -d ${mandir}/man1
-	${INSTALL} -d ${mandir}/man5
-	${INSTALL} -d ${sysconfdir}
-	${INSTALL} -d ${datadir}/detox
-	${INSTALL} detox ${bindir}
-	${INSTALL} detox.1 ${mandir}/man1
-	${INSTALL} detoxrc.5 detox.tbl.5 ${mandir}/man5
-	${INSTALL} detoxrc ${sysconfdir}
-	${INSTALL} iso8859_1.tbl unicode.tbl ${datadir}/detox
+install: install-base install-safe-config install-sample-config
+
+force-install: install-base install-unsafe-config install-sample-config
+
+install-base: detox
+	${INSTALL} -d ${DESTDIR}${bindir}
+	${INSTALL} -d ${DESTDIR}${mandir}/man1
+	${INSTALL} -d ${DESTDIR}${mandir}/man5
+	${INSTALL} -d ${DESTDIR}${sysconfdir}
+	${INSTALL} -d ${DESTDIR}${datadir}/detox
+	${INSTALL} detox ${DESTDIR}${bindir}
+	${INSTALL} detox.1 ${DESTDIR}${mandir}/man1
+	${INSTALL} detoxrc.5 detox.tbl.5 ${DESTDIR}${mandir}/man5
+
+install-safe-config:
+	@if [ ! -f ${DESTDIR}${sysconfdir}/detoxrc ]; then \
+		${INSTALL} detoxrc ${DESTDIR}${sysconfdir}; \
+	else \
+		echo "${DESTDIR}${sysconfdir}/detoxrc exists, skipping"; \
+	fi
+	@if [ ! -f ${DESTDIR}${datadir}/detox/iso8859_1.tbl ]; then \
+		${INSTALL} iso8859_1.tbl ${DESTDIR}${datadir}/detox; \
+	else \
+		echo "${DESTDIR}${datadir}/detox/iso8859_1.tbl exists, skipping"; \
+	fi
+	@if [ ! -f ${DESTDIR}${datadir}/detox/unicode.tbl ]; then \
+		${INSTALL} unicode.tbl ${DESTDIR}${datadir}/detox; \
+	else \
+		echo "${DESTDIR}${datadir}/detox/unicode.tbl exists, skipping"; \
+	fi
+
+install-unsafe-config:
+	${INSTALL} detoxrc ${DESTDIR}${sysconfdir}
+	${INSTALL} iso8859_1.tbl ${DESTDIR}${datadir}/detox
+	${INSTALL} unicode.tbl ${DESTDIR}${datadir}/detox
+
+install-sample-config:
+	${INSTALL} detoxrc ${DESTDIR}${sysconfdir}/detoxrc.sample
+	${INSTALL} iso8859_1.tbl ${DESTDIR}${datadir}/detox/iso8859_1.tbl.sample
+	${INSTALL} unicode.tbl ${DESTDIR}${datadir}/detox/unicode.tbl.sample
 
 clean:
 	rm -f *.o core *~ a.out *.core
@@ -107,9 +139,11 @@ clean:
 
 devclean: clean
 	rm -f *.BAK
+	rm -f detox_path.h
+	rm -f config_file_l.c config_file_y.[ch]
 
 distclean: clean
-	rm -f config.log config.status
+	rm -f config.log config.status config.cache
 	rm -f Makefile config.h install.sh
 	rm -f detox_path.h
 	rm -f config_file_l.c config_file_y.[ch]

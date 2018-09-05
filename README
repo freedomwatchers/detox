@@ -21,13 +21,17 @@ Compilation:
 Installation:
 	make install
 
+Installation that overwrites config files and translation tables:
+	make force-install
+
 -----------------------------------------------------------------------------
                               COMPILATION NOTES
 -----------------------------------------------------------------------------
 
 Ensure that the path to lex/yacc (or an equivalent) is in your $PATH
 environmental variable.  For instance, under Solaris, you may need to add
-/usr/ccs/bin to your path to get detox to compile.
+/usr/ccs/bin to your path to get detox to compile:
+	export PATH=${PATH}:/usr/ccs/bin
 
      -------------------------------------------------------------------
 
@@ -74,11 +78,19 @@ problems with installation or operation please feel free to contact me.
 None known at the moment.
 
 -----------------------------------------------------------------------------
-                                    THANKS
+	  SPECIAL THANKS (TO CONTRIBUTORS OF CODE AND SUGGESTIONS)
 -----------------------------------------------------------------------------
 
 Many thanks to Miguel Angelo Rozsas for suggesting UTF-8 support and his
 valuable input following that suggestion.
+
+Ciaran McCreesh put together a package for Gentoo (rock!), submitted a patch
+to add a prefix onto install paths (for package builds) and helped fix
+parallel builds.
+
+-----------------------------------------------------------------------------
+                                    THANKS
+-----------------------------------------------------------------------------
 
 Eric S. Raymond for his work on "The Art of UNIX Programming"
 
