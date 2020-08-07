@@ -1,3 +1,18 @@
+Version 1.2.0:
+	Modified the safe filter to use a translation table.
+	Modified the safe filter fallback (previous functionality) to operate
+		without any special behavior.  The wipeup filter now picks up
+		where the safe filter left off.
+	Fixed the default permissions on install (files are 644 now).
+	Updated libpopt support to work on Linux under the PowerPC platform
+		(chars are unsigned by default).
+	Included the generated lex and yacc files in the default package.
+	Added additional logic to allow files on case insensitive filesystems
+		to have their case changed.
+	Added the ability to set locale specific translations in the
+		translation tables.
+	Added German specific translations to the translation tables.
+
 Version 1.1.1:
 	Modified Makefile to support parallel builds.
 	Added ${DESTDIR} to install paths, for Gentoo package builds.

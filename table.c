@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: table.c,v 1.9 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: table.c,v 1.10 2005/08/28 15:05:03 purgedhalo Exp $
  *
  */
 
@@ -44,6 +44,10 @@ struct translation_table *table_init(int max_rows)
 {
 	struct translation_table *ret;
 	unsigned int row_length;
+
+	if (max_rows <= 0) {
+		max_rows = 500;
+	}
 
 	row_length = max_rows * sizeof(struct translation_table_row);
 
@@ -65,6 +69,45 @@ struct translation_table *table_init(int max_rows)
 	ret->length = max_rows;
 
 	return ret;
+}
+
+struct translation_table *table_resize(struct translation_table *table, int rows)
+{
+	struct translation_table *ret;
+	int i;
+
+	ret = table_init(rows);
+
+	if (ret == NULL)
+		return table;
+
+	if (table == NULL)
+		return ret;
+
+	for (i = 0; i < table->length; i++) {
+		if (table->rows[i].key > 0 && table->rows[i].data != NULL) {
+			table_put(ret, table->rows[i].key, table->rows[i].data);
+		}
+	}
+
+	return ret;
+}
+
+void table_free(struct translation_table *table)
+{
+	int i;
+
+	if (table == NULL)
+		return;
+
+	for (i = 0; i < table->length; i++) {
+		if (table->rows[i].key > 0 && table->rows[i].data != NULL) {
+			free(table->rows[i].data);
+		}
+	}
+
+	free(table->rows);
+	free(table);
 }
 
 int table_hash1(int table_length, int key)

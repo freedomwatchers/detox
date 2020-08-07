@@ -29,7 +29,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
- * $Id: config_file.y,v 1.14 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: config_file.y,v 1.15 2005/03/06 06:42:20 purgedhalo Exp $
  * 
  */
 
@@ -93,8 +93,6 @@ sequence_close: CLOSE EOL { cf_append_to_sequence_list(); }
 
 method: UNCGI EOL	{ cf_append_to_sequence(&clean_uncgi, NULL); }
 	| 
-	SAFE EOL	{ cf_append_to_sequence(&clean_safe, NULL); }
-	| 
 	LOWER EOL	{ cf_append_to_sequence(&clean_lower, NULL); }
 	| 
 	wipeup EOL
@@ -102,6 +100,8 @@ method: UNCGI EOL	{ cf_append_to_sequence(&clean_uncgi, NULL); }
 	iso8859_1 EOL
 	|
 	utf_8 EOL
+	|
+	safe EOL
 	|
 	max_length EOL
 	;
@@ -129,6 +129,19 @@ utf_8: UTF_8 { cf_append_to_sequence(&clean_utf_8, NULL); }
 		csopts->filename = $4;
 
 		cf_append_to_sequence(&clean_utf_8, csopts);
+	}
+	;
+
+safe: SAFE { cf_append_to_sequence(&clean_safe, NULL); }
+	|
+	SAFE OPEN CLOSE { cf_append_to_sequence(&clean_safe, NULL); }
+	|
+	SAFE OPEN FILENAME string EOL CLOSE { 
+		csopts = malloc(sizeof(struct clean_string_options));
+		memset(csopts, 0, sizeof(struct clean_string_options));
+		csopts->filename = $4;
+
+		cf_append_to_sequence(&clean_safe, csopts);
 	}
 	;
 

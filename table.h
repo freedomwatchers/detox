@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: table.h,v 1.6 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: table.h,v 1.7 2005/08/28 15:05:03 purgedhalo Exp $
  *
  */
 
@@ -54,6 +54,8 @@ struct translation_table {
 };
 
 extern struct translation_table *table_init(int max_rows);
+extern struct translation_table *table_resize(struct translation_table *table, int rows);
+extern void table_free(struct translation_table *table);
 extern int table_put(struct translation_table *table, int key, char *data);
 extern char *table_get(struct translation_table *table, int key);
 

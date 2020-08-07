@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: clean_string.h,v 1.13 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: clean_string.h,v 1.14 2005/03/06 06:42:20 purgedhalo Exp $
  *
  */
 
@@ -46,6 +46,7 @@ struct clean_string_options {
 
 unsigned char *clean_iso8859_1_basic(unsigned char *s, void *options);
 unsigned char *clean_iso8859_1(unsigned char *s, void *options);
+unsigned char *clean_safe_basic(unsigned char *s, void *options);
 unsigned char *clean_safe(unsigned char *s, void *options);
 unsigned char *clean_uncgi(unsigned char *s, void *options);
 unsigned char *clean_wipeup(unsigned char *s, void *options);

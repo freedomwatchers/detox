@@ -49,9 +49,12 @@ or nonexistent default indicates that any unknown character should
 fall through to the next filter.  In this manner, it is possible to
 chain together multiple translation tables in a sequence.
 .It Cm start
-Indicates the start of the value list within the translation table.
+Indicates the start of a value list within the translation table.
+.It Cm start Ar lang
+Indicates the start of a language specific value list within the
+translation table.
 .It Cm end
-Indicates the end of the value list within the translation table.
+Indicates the end of a value list within the translation table.
 .It Ar value translation
 Value can be specified in decimal (1), hex (0x01) or octal (01).  The
 same rules that apply to sscanf apply here.

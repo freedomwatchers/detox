@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: parse_table.c,v 1.7 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: parse_table.c,v 1.8 2005/08/28 14:40:00 purgedhalo Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
+#include <locale.h>
 
 #include "table.h"
 
@@ -59,6 +60,7 @@ struct translation_table *parse_table(char *filename)
 	int max_data_length;
 	int ret;
 	int state;
+	char *system_ctype;
 
 	struct translation_table *table;
 
@@ -67,6 +69,11 @@ struct translation_table *parse_table(char *filename)
 	err = stat(filename, &ttable_stat);
 	if (err == -1) {
 		return NULL;
+	}
+
+	system_ctype = setlocale(LC_CTYPE, "");
+	if (system_ctype == NULL) {
+		system_ctype = ""; // I don't think we can free the return from setlocale()
 	}
 
 	if (ttable_stat.st_size > 0) {
@@ -127,7 +134,27 @@ struct translation_table *parse_table(char *filename)
 			}
 
 			if (strncasecmp(parsed, "start", 5) == 0) {
-				state = INSIDE_STATE;
+				if (work[offset] == '\0') {
+					// All languages
+					state = INSIDE_STATE;
+					continue;
+				}
+
+				if (work[offset] == '"') {
+					sscanf(work + offset + 1, "%[^\"]", parsed);
+				}
+				else if (work[offset] == '\'') {
+					sscanf(work + offset + 1, "%[^']", parsed);
+				}
+				else {
+					sscanf(work + offset, "%s", parsed);
+				}
+
+				if (strncasecmp(parsed, system_ctype, strlen(parsed)) == 0) {
+					state = INSIDE_STATE;
+				}
+				// else ignore this start/end block
+
 				continue;
 			}
 

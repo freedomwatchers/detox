@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: detox.c,v 1.22 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: detox.c,v 1.23 2005/03/06 06:42:20 purgedhalo Exp $
  *
  */
 
@@ -226,6 +226,12 @@ int main(int argc, char **argv)
 					}
 					else if (work->cleaner == &clean_safe) {
 						printf("\tcleaner: safe\n");
+						if (work->options != NULL) {
+							struct clean_string_options *opts = work->options;
+							if (opts->filename != NULL) {
+								printf("\t\ttranslation table: %s\n", opts->filename);
+							}
+						}
 					}
 					else if (work->cleaner == &clean_wipeup) {
 						printf("\tcleaner: wipeup\n");
@@ -323,7 +329,19 @@ int main(int argc, char **argv)
 				do_search = 1;
 			}
 		}
+		else if (work->cleaner == &clean_safe) {
+			if (work->options != NULL) {
+				opts = work->options;
+				if (opts->filename != NULL) {
+					check_filename = opts->filename;
+				}
+			}
 
+			if (!check_filename) {
+				check_filename = "safe.tbl";
+				do_search = 1;
+			}
+		}
 
 		if (check_filename || do_search) {
 
@@ -356,6 +374,9 @@ int main(int argc, char **argv)
 					}
 					else if (work->cleaner == &clean_utf_8) {
 						work->cleaner = &clean_utf_8_basic;
+					}
+					else if (work->cleaner == &clean_safe) {
+						work->cleaner = &clean_safe_basic;
 					}
 					else {
 						fprintf(stderr, "detox: unable to locate translation table or fall back\n");

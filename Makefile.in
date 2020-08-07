@@ -28,7 +28,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # 
-# $Id: Makefile.in,v 1.24.2.7 2005/03/13 07:47:13 purgedhalo Exp $
+# $Id: Makefile.in,v 1.27 2005/08/28 05:46:30 purgedhalo Exp $
 #
 
 prefix = @prefix@
@@ -97,57 +97,81 @@ install: install-base install-safe-config install-sample-config
 force-install: install-base install-unsafe-config install-sample-config
 
 install-base: detox
-	${INSTALL} -d ${DESTDIR}${bindir}
-	${INSTALL} -d ${DESTDIR}${mandir}/man1
-	${INSTALL} -d ${DESTDIR}${mandir}/man5
-	${INSTALL} -d ${DESTDIR}${sysconfdir}
-	${INSTALL} -d ${DESTDIR}${datadir}/detox
-	${INSTALL} detox ${DESTDIR}${bindir}
-	${INSTALL} detox.1 ${DESTDIR}${mandir}/man1
-	${INSTALL} detoxrc.5 detox.tbl.5 ${DESTDIR}${mandir}/man5
+	${INSTALL} -m 755 -d ${DESTDIR}${bindir}
+	${INSTALL} -m 755 -d ${DESTDIR}${mandir}/man1
+	${INSTALL} -m 755 -d ${DESTDIR}${mandir}/man5
+	${INSTALL} -m 755 -d ${DESTDIR}${sysconfdir}
+	${INSTALL} -m 755 -d ${DESTDIR}${datadir}/detox
+	${INSTALL} -m 755 detox ${DESTDIR}${bindir}
+	${INSTALL} -m 644 detox.1 ${DESTDIR}${mandir}/man1
+	${INSTALL} -m 644 detoxrc.5 detox.tbl.5 ${DESTDIR}${mandir}/man5
 
 install-safe-config:
 	@if [ ! -f ${DESTDIR}${sysconfdir}/detoxrc ]; then \
-		${INSTALL} detoxrc ${DESTDIR}${sysconfdir}; \
+		${INSTALL} -m 644 detoxrc ${DESTDIR}${sysconfdir}; \
 	else \
 		echo "${DESTDIR}${sysconfdir}/detoxrc exists, skipping"; \
 	fi
 	@if [ ! -f ${DESTDIR}${datadir}/detox/iso8859_1.tbl ]; then \
-		${INSTALL} iso8859_1.tbl ${DESTDIR}${datadir}/detox; \
+		${INSTALL} -m 644 iso8859_1.tbl ${DESTDIR}${datadir}/detox; \
 	else \
 		echo "${DESTDIR}${datadir}/detox/iso8859_1.tbl exists, skipping"; \
 	fi
 	@if [ ! -f ${DESTDIR}${datadir}/detox/unicode.tbl ]; then \
-		${INSTALL} unicode.tbl ${DESTDIR}${datadir}/detox; \
+		${INSTALL} -m 644 unicode.tbl ${DESTDIR}${datadir}/detox; \
 	else \
 		echo "${DESTDIR}${datadir}/detox/unicode.tbl exists, skipping"; \
 	fi
 
 install-unsafe-config:
-	${INSTALL} detoxrc ${DESTDIR}${sysconfdir}
-	${INSTALL} iso8859_1.tbl ${DESTDIR}${datadir}/detox
-	${INSTALL} unicode.tbl ${DESTDIR}${datadir}/detox
+	${INSTALL} -m 644 detoxrc ${DESTDIR}${sysconfdir}
+	${INSTALL} -m 644 iso8859_1.tbl ${DESTDIR}${datadir}/detox
+	${INSTALL} -m 644 unicode.tbl ${DESTDIR}${datadir}/detox
 
 install-sample-config:
-	${INSTALL} detoxrc ${DESTDIR}${sysconfdir}/detoxrc.sample
-	${INSTALL} iso8859_1.tbl ${DESTDIR}${datadir}/detox/iso8859_1.tbl.sample
-	${INSTALL} unicode.tbl ${DESTDIR}${datadir}/detox/unicode.tbl.sample
+	${INSTALL} -m 644 detoxrc ${DESTDIR}${sysconfdir}/detoxrc.sample
+	${INSTALL} -m 644 iso8859_1.tbl ${DESTDIR}${datadir}/detox/iso8859_1.tbl.sample
+	${INSTALL} -m 644 unicode.tbl ${DESTDIR}${datadir}/detox/unicode.tbl.sample
+
+uninstall: uninstall-base
+	@echo 'This command doesn''t remove existing configuration'
+	@echo 'files.  Run "make force-uninstall" to remove the'
+	@echo 'live configuration files as well.'
+
+force-uninstall: uninstall-base
+	rm -f ${DESTDIR}${sysconfdir}/detoxrc
+	rm -f ${DESTDIR}${datadir}/detox/iso8859_1.tbl
+	rm -f ${DESTDIR}${datadir}/detox/unicode.tbl
+	@if [ -d ${DESTDIR}${datadir}/detox ]; then \
+		rmdir ${DESTDIR}${datadir}/detox; \
+	fi
+
+uninstall-base:
+	rm -f ${DESTDIR}${bindir}/detox
+	rm -f ${DESTDIR}${mandir}/man1/detox.1*
+	rm -f ${DESTDIR}${mandir}/man5/detoxrc.5*
+	rm -f ${DESTDIR}${mandir}/man5/detox.tbl.5*
+	rm -f ${DESTDIR}${sysconfdir}/detoxrc.sample
+	rm -f ${DESTDIR}${datadir}/detox/iso8859_1.tbl.sample
+	rm -f ${DESTDIR}${datadir}/detox/unicode.tbl.sample
 
 clean:
 	rm -f *.o core *~ a.out *.core
 	rm -f detox
 
-devclean: clean
-	rm -f *.BAK
-	rm -f detox_path.h
-	rm -f config_file_l.c config_file_y.[ch]
-
 distclean: clean
+	rm -f *.BAK
 	rm -f config.log config.status config.cache
 	rm -f Makefile config.h install.sh
 	rm -f detox_path.h
-	rm -f config_file_l.c config_file_y.[ch]
 	rm -f .depend
+
+maintainer-clean: distclean
+	@echo 'This command is intended for maintainers to use; it'
+	@echo 'deletes files that may need special tools to rebuild.'
+	rm -f config_file_l.c config_file_y.[ch]
+
+distready: config_file_l.c config_file_y.c distclean
 
 dep: depend
 

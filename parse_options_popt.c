@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: parse_options_popt.c,v 1.3 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: parse_options_popt.c,v 1.4 2005/08/26 11:26:25 purgedhalo Exp $
  *
  */
 
@@ -69,8 +69,8 @@ struct detox_options *parse_options_popt(int argc, const char **argv)
 
 	char *work;
 
-	char c;			/* used for argument parsing */
-	poptContext optCon;	/* context for parsing command-line options */
+	int c; /* used for argument parsing */
+	poptContext optCon; /* context for parsing command-line options */
 
 	int i;
 	int max = 10;

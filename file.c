@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: file.c,v 1.10 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: file.c,v 1.11 2005/08/28 06:32:28 purgedhalo Exp $
  *
  */
 
@@ -58,7 +58,8 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 	unsigned char *old_filename, *old_filename_ptr, *new_filename;
 	unsigned char *work, *hold;
 
-	struct stat stat_info;
+	struct stat stat_info_old;
+	struct stat stat_info_new;
 	int err;
 	unsigned int len;
 
@@ -121,19 +122,24 @@ unsigned char *parse_file(unsigned char *filename, struct detox_options *options
 
 	free(work);
 
-	err = lstat(old_filename, &stat_info);
+	err = lstat(old_filename, &stat_info_old);
 	if (err == -1) {
 		free(new_filename);
 		return old_filename;
 	}
 
-	err = lstat(new_filename, &stat_info);
-	if (err != -1) {
-		fprintf(stderr, "Cannot rename %s to %s: file already exists\n",
-			old_filename, new_filename);
+	err = lstat(new_filename, &stat_info_new);
+	if (err != -1) { // New file exists
+		if (stat_info_old.st_dev != stat_info_new.st_dev || // Different device
+			stat_info_old.st_ino != stat_info_new.st_ino || // Different inode
+			stat_info_old.st_nlink > 1) // More than one hard link
+		{
+			fprintf(stderr, "Cannot rename %s to %s: file already exists\n",
+				old_filename, new_filename);
 
-		free(new_filename);
-		return old_filename;
+			free(new_filename);
+			return old_filename;
+		}
 	}
 
 	if (options->verbose || options->dry_run) {

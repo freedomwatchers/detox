@@ -28,7 +28,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * $Id: clean_string.c,v 1.19 2005/03/05 01:54:56 purgedhalo Exp $
+ * $Id: clean_string.c,v 1.20 2005/03/06 06:42:20 purgedhalo Exp $
  *
  */
 
@@ -157,19 +157,12 @@ unsigned char *clean_iso8859_1(unsigned char *s, void *opts)
 }
 
 
-
 /*
  * Cleans up any unsafe characters.
  *
  * The rules are:
- *   Strip if at beginning of string, then leave alone:
- *     -
- *
- *   Replace with _ if at beginning of string, then leave alone:
- *     #
- *
  *   Leave alone:
- *     ~ % ^ _ , . + =
+ *     - # ~ % ^ _ , . + =
  *
  *   Translate:
  *     &  into  _and_
@@ -177,11 +170,11 @@ unsigned char *clean_iso8859_1(unsigned char *s, void *opts)
  *   Replace with _:
  *     ` ! @ $ * \ | : ; " ' < ? /
  *
- *   Replace with - (or _, if at beginning of string):
+ *   Replace with -:
  *     ( ) [ ] { }
  *
  */
-unsigned char *clean_safe(unsigned char *s, void *opts)
+unsigned char *clean_safe_basic(unsigned char *s, void *opts)
 {
 	unsigned char *output, *input_walk, *output_walk;
 
@@ -205,62 +198,54 @@ unsigned char *clean_safe(unsigned char *s, void *opts)
 		}
 
 		switch (*input_walk) {
-		case '-':
-			if (output_walk == output) {
+			case '-':
+			case '#':
+			case '~':
+			case '%':
+			case '^':
+			case '_':
+			case ',':
+			case '.':
+			case '+':
+			case '=':
+				*output_walk++ = *input_walk;
 				break;
-			}
-		case '#':
-			if (output_walk == output) {
+
+			case '&':
+				*output_walk++ = '_';
+				*output_walk++ = 'a';
+				*output_walk++ = 'n';
+				*output_walk++ = 'd';
 				*output_walk++ = '_';
 				break;
-			}	/* else fall through */
-		case '~':
-		case '%':
-		case '^':
-		case '_':
-		case ',':
-		case '.':
-		case '+':
-		case '=':
-			*output_walk++ = *input_walk;
-			break;
 
-		case '&':
-			*output_walk++ = '_';
-			*output_walk++ = 'a';
-			*output_walk++ = 'n';
-			*output_walk++ = 'd';
-			*output_walk++ = '_';
-			break;
+			case ' ':
+			case '`':
+			case '!':
+			case '@':
+			case '$':
+			case '*':
+			case '\\':
+			case '|':
+			case ':':
+			case ';':
+			case '"':
+			case '\'':
+			case '<':
+			case '>':
+			case '?':
+			case '/':
+				*output_walk++ = '_';
+				break;
 
-		case ' ':
-		case '`':
-		case '!':
-		case '@':
-		case '$':
-		case '*':
-		case '\\':
-		case '|':
-		case ':':
-		case ';':
-		case '"':
-		case '\'':
-		case '<':
-		case '>':
-		case '?':
-		case '/':
-			*output_walk++ = '_';
-			break;
-
-		case '(':
-		case ')':
-		case '[':
-		case ']':
-		case '{':
-		case '}':
-			*output_walk = ((output_walk == output) ? '_' : '-');
-			output_walk++;
-			break;
+			case '(':
+			case ')':
+			case '[':
+			case ']':
+			case '{':
+			case '}':
+				*output_walk++ = '-';
+				break;
 		}
 
 		input_walk++;
@@ -270,6 +255,68 @@ unsigned char *clean_safe(unsigned char *s, void *opts)
 
 	return output;
 }
+
+
+/*
+ * Translates unsafe characters
+ */
+unsigned char *clean_safe(unsigned char *s, void *opts)
+{
+	unsigned char *output, *input_walk, *output_walk, *replace_walk;
+
+	struct translation_table *table = NULL;
+	struct clean_string_options *options = NULL;
+
+	if (s == NULL) {
+		return NULL;
+	}
+
+	if (opts == NULL) {
+		fprintf(stderr, "this shouldn't happen\n");
+		exit(-1);
+	}
+
+	options = (struct clean_string_options *)opts;
+	table = options->translation_table;
+
+	output = malloc((strlen(s) * table->max_data_length) + 1);
+	if (output == NULL) {
+		fprintf(stderr, "out of memory: %s\n", strerror(errno));
+		return NULL;
+	}
+
+	input_walk = s;
+	output_walk = output;
+
+	while (*input_walk != '\0') {
+		replace_walk = table_get(table, *input_walk);
+		if (replace_walk == NULL) {
+			if (table->default_translation == NULL) {
+
+				/*
+				 * Null translation == leave it alone
+				 */
+				*output_walk++ = *input_walk++;
+			}
+			else {
+				replace_walk = table->default_translation;
+			}
+		}
+
+		if (replace_walk != NULL) {
+			while (*replace_walk != '\0') {
+				*output_walk++ = *replace_walk++;
+			}
+		}
+
+		input_walk++;
+	}
+
+	*output_walk = 0;
+
+	return output;
+}
+
 
 
 /*
@@ -320,6 +367,9 @@ unsigned char *clean_uncgi(unsigned char *s, void *opts)
  * If "remove_trailing" is set to non-zero, then "." is added to the
  * comparison, and takes precedence.  This has the effect of reducing "-." or
  * "._", etc, to ".".
+ *
+ * Strips any "-", "_" or "#" from the beginning of a string.
+ *
  */
 unsigned char *clean_wipeup(unsigned char *s, void *opts)
 {
@@ -336,8 +386,8 @@ unsigned char *clean_wipeup(unsigned char *s, void *opts)
 		remove_trailing = ((struct clean_string_options *)opts)->remove_trailing;
 	}
 
-	/* remove any - or _ at beginning of string */
-	while (*s == '-' || *s == '_') {
+	/* remove any -, _, or # at beginning of string */
+	while (*s == '-' || *s == '_' || *s == '#') {
 		s++;
 	}
 
@@ -353,41 +403,41 @@ unsigned char *clean_wipeup(unsigned char *s, void *opts)
 
 	while (*input_walk != '\0') {
 		switch (*input_walk) {
-		case '-':
-			if (matched) {
-				if (*output_walk == '_') {
+			case '-':
+				if (matched) {
+					if (*output_walk == '_') {
+						*output_walk = '-';
+					}
+				}
+				else {
 					*output_walk = '-';
 				}
-			}
-			else {
-				*output_walk = '-';
-			}
 
-			matched = 1;
-			break;
-
-		case '_':
-			if (!matched) {
-				*output_walk = '_';
-			}
-
-			matched = 1;
-			break;
-
-		case '.':
-			if (remove_trailing) {
-				*output_walk = '.';
 				matched = 1;
 				break;
-			}	/* else fall through */
 
-		default:
-			if (matched) {
-				output_walk++;
-				matched = 0;
-			}
+			case '_':
+				if (!matched) {
+					*output_walk = '_';
+				}
 
-			*output_walk++ = *input_walk;
+				matched = 1;
+				break;
+
+			case '.':
+				if (remove_trailing) {
+					*output_walk = '.';
+					matched = 1;
+					break;
+				}	/* else fall through */
+
+			default:
+				if (matched) {
+					output_walk++;
+					matched = 0;
+				}
+
+				*output_walk++ = *input_walk;
 		}
 		input_walk++;
 	}

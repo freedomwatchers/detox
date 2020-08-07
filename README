@@ -82,11 +82,26 @@ None known at the moment.
 -----------------------------------------------------------------------------
 
 Many thanks to Miguel Angelo Rozsas for suggesting UTF-8 support and his
-valuable input following that suggestion.
+valuable input following that suggestion.  This change helped introduce
+translation tables into detox.
 
 Ciaran McCreesh put together a package for Gentoo (rock!), submitted a patch
 to add a prefix onto install paths (for package builds) and helped fix
 parallel builds.
+
+Lou Alfonso for suggesting that the safe filter be controlled through a
+table so that it can be tuned easily.
+
+Christoph Wegscheider noticed that the install script was installing
+everything 755, for pointing out that not everyone has lex or yacc, and for
+his input on how umlauts should be converted.
+
+Gerg Thor informed me that characters on the PowerPC platform are unsigned
+by default and that the libpopt parser was rolling into an infinite loop as
+a result.
+
+Jon Amundsen pointed out that the lowercase converting sequence was only
+really working on case-insensitive filesystems.
 
 -----------------------------------------------------------------------------
                                     THANKS
